@@ -200,7 +200,7 @@ int main(int argc, char *argv[]) {
             }
             
             parse_output(clusters,k,true,out); 
-            Lloyd(data, n, k, clusters, dist);
+            Lloyd(data, n_pts, k, clusters, dist);
 
             uint64_t dis = distorsion(clusters, dist, k);            
             fprintf(out,",%"PRIu64",",dis);
@@ -226,7 +226,7 @@ int main(int argc, char *argv[]) {
             for (j =0; j < k-i; j++) {
                 ptrs[i+j] = ptrs[i-1] + j + 1; //Placing all the pointers after the one that moved
             }   
-        } while((*ptrs[0]) != data[n_pts-k]); //While the ptr did not reach its last position (final combination)
+        } while((*ptrs[0]) != data[n-k]); //While the ptr did not reach its last position (final combination)
     }
 
     //Testing the last combination possible
@@ -235,7 +235,7 @@ int main(int argc, char *argv[]) {
     }
 
     parse_output(clusters,k,true,out); 
-    Lloyd(data, n, k, clusters, dist);
+    Lloyd(data, n_pts, k, clusters, dist);
 
     uint64_t dis = distorsion(clusters, dist, k);            
     fprintf(out,",%"PRIu64",",dis);
