@@ -26,7 +26,7 @@
 typedef struct {
     point_t* center; 
     point_t** data;
-    uint64_t size; 
+    int64_t size; 
 } cluster_t;
 
 #endif //CLUSTER_H
