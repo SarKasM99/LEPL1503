@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
         clusters[i]->center->dim = dim;
         clusters[i]->center->coords = (int64_t*) malloc(sizeof(int64_t)*dim);
 
-		clusters[i]->data = (point_t**) malloc(n_pts*sizeof(point_t*));
+		clusters[i]->data = (point_t**) malloc(0);
     }
 
     //Solving k-means problem and storing the results in the csv file
