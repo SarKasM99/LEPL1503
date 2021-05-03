@@ -100,7 +100,7 @@ int singleThread(args_t* program_arguments) {
             fprintf(out,"\n"); 
 
 
-            if(n_combinations >= 10 && iter >= percent){
+            if(n_combinations >= 10 && iter >= percent && out != stdout){
                 printf("%d%% done...\n",decim);
                 decim += 10;
                 percent = (decim*n_combinations)/100;
@@ -160,6 +160,6 @@ int singleThread(args_t* program_arguments) {
         fclose(program_arguments->output_stream);
     }
     
-    printf("All done! :)\n");
+    if(out != stdout) printf("All done! :)\n");
     return 0;
 }
