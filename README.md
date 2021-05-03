@@ -32,3 +32,5 @@ Here are the parameters that can be used with the executable file (kmeans): \
 -d distance_metric (default: "manhattan") it's either "manhattan" or "euclidean". Specifies the distance formula needs to be used \
 -f output_file (default: stdout) the path of the csv file where the results needs to be written \
 input_filename (default: stdin) the path of the binary file that contains the data that needs to be processed. 
+
+NB: The code is well documented, so we recommend you use vscode or doxygen, it will allow you to see easily how each structure and function works. The strategy and the use of threads is explained in the main function (in main.c). 
