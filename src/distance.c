@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+
 #include "../headers/distance.h"
 
 //For the description of the functions and the paramaters, check the distance.h header

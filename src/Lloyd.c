@@ -1,95 +1,129 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "../headers/file_functions.h"
 #include "../headers/Lloyd.h"
 
-/**
-* @brief This function compares centroides. It is used for the Lloyd algorithm.
-*
-* @returns 1 if the two arrays are the same and 0 otherwise.
-*/
-int compareCentroides(int64_t** c1,int64_t** c2, uint32_t k,uint32_t dim){
-    if(c1[0] == NULL || c2[0] == NULL){
-        return 0;
-    }
-
-    for(uint32_t i =0;i<k;i++){
-        if(memcmp(c1[i],c2[i], dim*sizeof(int64_t))) return 0; 
-    }
-
-    return 1;
-}
-
-void Lloyd(point_t** points,uint64_t n,uint32_t k,cluster_t** const clusters, squared_distance_func_t dist){  
-    //Initialising the centroides
-    int64_t* centroides[k];      
-    int64_t* old_centroides[k];
-
+void Lloyd(point_t** points, int64_t* data, uint64_t n,uint32_t k,cluster_t** const clusters, squared_distance_func_t dist){
     uint32_t dim = points[0]->dim;
-    bool init = true;               //This boolean is used to initialize the memory for old_centroides 
 
+    int64_t* init_centroids[k];     //Storing initial centers in case something goes wrong
     for(uint32_t i = 0;i<k;i++){
-        centroides[i] = (int64_t*) malloc(dim*sizeof(int64_t));
-        memcpy(centroides[i], clusters[i]->center->coords, dim*sizeof(int64_t));
-        old_centroides[i] = NULL;
+        init_centroids[i] = (int64_t*) malloc(dim*sizeof(int64_t));
+        if(!init_centroids[i]) {fprintf(stderr,"Error during malloc\n"); exit(EXIT_FAILURE);}
+        if(!memcpy(init_centroids[i], clusters[i]->center->coords, dim*sizeof(int64_t))) {fprintf(stderr,"Error during memcpy\n"); exit(EXIT_FAILURE);}
     }
     
-    while(!compareCentroides(centroides, old_centroides, k, dim)){
-        for(uint32_t i = 0;i<k;i++){
-            if(init) {
-                old_centroides[i] = (int64_t*) malloc(dim*sizeof(int64_t));
+    //Storing old and new centroides in a continuous data form
+    int64_t * centroides = (int64_t*) malloc(k*dim*sizeof(int64_t));
+    if(!centroides) {fprintf(stderr,"Error during malloc\n"); exit(EXIT_FAILURE);}
+
+    int64_t * old_centroides = (int64_t*) malloc(k*dim*sizeof(int64_t));    
+    if(!old_centroides) {fprintf(stderr,"Error during malloc\n"); exit(EXIT_FAILURE);}
+
+    for(uint32_t c = 0; c < k; c++){
+        for(uint32_t j = 0; j<dim; j++){
+            centroides[dim*c+j] = clusters[c]->center->coords[j];
+        }
+    }
+
+    //stocker la cluster size
+    int64_t cluster_size[k];
+
+    point_t pi; pi.dim = dim; //A point from the data
+    point_t pc; pc.dim = dim; //A center from a cluster
+
+    bool same = true;
+    while (same){
+        for(uint32_t c = 0; c<k; c++){
+            cluster_size[c] = 0;                                     //reset the size of each cluster
+            for(uint32_t j = 0; j<dim; j++){
+                old_centroides[c*dim+j] = centroides[c*dim+j];
+                centroides[c*dim + j] = 0;                          //reset the clusters
             }
-
-            memcpy(old_centroides[i],centroides[i],dim*sizeof(int64_t));
-            
-
-            clusters[i]->data = (point_t**) realloc(clusters[i]->data,0); //Reinitisialising all the points stored in each clusters
-            clusters[i]->size = 0;
         }
         
-        if(init) init = false;
+        for(uint64_t i =0; i < n; i++){ //get cluster appartenance
+            //Initialising points
+            pi.coords = &data[dim*i];              //The point we are looking for
+            pc.coords = &old_centroides[0];        //The first center 
 
-        //Reallocating the points to their corresponding clusters
-        for(uint64_t i = 0;i<n;i++){ 
-            uint64_t min = dist(points[i],clusters[0]->center);
+            uint64_t min = dist(&pi,&pc);
             uint32_t index = 0;                                      //Searching for the index with minimum distortion                        
 
-            for(uint32_t j=1;j<k;j++){ //Index j starts at 1 since index 0 is already been tested above
-                uint64_t res = dist(points[i],clusters[j]->center);
+            for(uint32_t c=1;c<k;c++){ //Index c starts at 1 since index 0 is already been tested above
+                pc.coords = &old_centroides[dim*c];
+                uint64_t res = dist(&pi,&pc);
                 if(min > res){
                     min = res;
-                    index = j;
+                    index = c;
                 }
             }
 
-            clusters[index]->size++;
-            clusters[index]->data = (point_t**) realloc(clusters[index]->data,clusters[index]->size*sizeof(point_t*));  //Reallocating the memory for the data stored in the cluster
-            clusters[index]->data[clusters[index]->size-1] = points[i];    //Storing the pointer of the data in the cluster
+            cluster_size[index] += 1;
+
+            for(uint32_t j = 0; j<dim; j++){
+                centroides[index*dim + j] += data[dim*i + j];  //Adding the data to the corresponding cluster to later calculate the mean
+            }
+        }
+
+        for(uint32_t c = 0; c<k; c++){
+            if(cluster_size[c] == 0){
+                fprintf(stderr,"Two points are too close and Lloyd's algorithm was not applied successfuly\n");
+                fprintf(stderr,"Those are the points of initialisation that failed:\n");
+                parse_center_output(init_centroids, k, dim, stderr);
+                fprintf(stderr,"\n");
+                exit(EXIT_FAILURE);
+            }
+
+            for(uint32_t j = 0; j<dim; j++){
+                centroides[c*dim + j] = centroides[c*dim + j] / cluster_size[c]; //Calculate the new centers to the corresponding cluster
+            }
         }
         
-        //Recalculating the new centers
-        for(uint32_t i = 0;i<k;i++){ 
-            point_t* new_center;
-            new_center = clusters[i]->center;
-            
-            for(uint32_t j = 0;j< dim;j++){  //Index j corresponds to the column of the data stored in cluster
-                int64_t res = 0;
+        same = memcmp(centroides,old_centroides, k*dim*sizeof(int64_t));
+    }
+    
+    //Now storing the center and allocating memory for the data of each cluster
+    for(uint32_t c = 0; c<k; c++){
 
-                for(uint64_t m = 0;m<clusters[i]->size;m++){ //Index m corresponds the line of the data stored in cluster
-                    res += clusters[i]->data[m]->coords[j]; //Summing all the j column
-                }
-                new_center->coords[j] = res/clusters[i]->size;;            //Storing the new center
-                centroides[i][j] = new_center->coords[j];
-            }
-
+        for(uint32_t j = 0; j<dim; j++){
+            clusters[c]->center->coords[j] = centroides[dim*c+j];
         }
+
+        clusters[c]->size = cluster_size[c];
+
+        clusters[c]->data = (point_t**) realloc(clusters[c]->data,clusters[c]->size*sizeof(point_t*));
+        if(!clusters[c]->data) {fprintf(stderr,"Error during realloc\n"); exit(EXIT_FAILURE);}
+        clusters[c]->center->dim = dim;
+        
+        cluster_size[c] = 0;
     }
 
+    //Storing the new data into each cluster
+    for(uint64_t i = 0; i<n; i++){
+        uint64_t min = dist(points[i],clusters[0]->center);
+        uint32_t index = 0;                                      //Searching for the index with minimum distortion                        
+
+        for(uint32_t j=1;j<k;j++){ //Index j starts at 1 since index 0 is already been tested above
+            uint64_t res = dist(points[i],clusters[j]->center);
+            if(min > res){
+                min = res;
+                index = j;
+            }
+        }
+
+        clusters[index]->data[cluster_size[index]] = points[i];
+        cluster_size[index]++;
+    }
+    
     for(uint32_t i = 0;i<k;i++){
-        free(centroides[i]);
-        free(old_centroides[i]);
+        free(init_centroids[i]);
     }
-}
 
+    free(centroides);
+    free(old_centroides);
+}
