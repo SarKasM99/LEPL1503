@@ -19,6 +19,7 @@
 * The centroids are stored in the field (center) of each cluster.
 *
 * @param points     The set of points
+* @param data       The set of coordinates stored in a continuous array
 * @param n          The number of points
 * @param clusters   The set of clusters
 * @param k          The number of clusters 
@@ -28,7 +29,7 @@
 * @see point.h
 * @see distance.h
 */
-void Lloyd(point_t** points,uint64_t n,uint32_t k,cluster_t** const clusters, squared_distance_func_t dist);
+void Lloyd(point_t** points,int64_t* data, uint64_t n,uint32_t k,cluster_t** const clusters, squared_distance_func_t dist);
 
 
 #endif //LLOYD_H
