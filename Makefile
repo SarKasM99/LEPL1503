@@ -23,7 +23,7 @@ tests: kmeans
 	@echo Launching unit tests:
 	./test/test
 
-memcheck: 
+memcheck: kmeans 
 	@echo Valgrind test1
 	valgrind ./kmeans -n 1 -p 10 -k 2 -f example.csv test/example.bin
 	@echo
