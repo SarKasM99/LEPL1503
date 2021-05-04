@@ -16,7 +16,6 @@
 #include "headers/Lloyd.h"
 #include "headers/file_functions.h"
 #include "headers/args.h"
-#include "headers/singleThread.h"
 #include "headers/combination.h"
 
 /**
@@ -117,7 +116,7 @@ sem_t full;
 uint32_t n;                         //Number of points of initialization
 uint32_t k;                         //Number of clusters
 uint64_t n_pts;                     //Total number of points
-uint64_t n_t;                       //Number of threads
+uint64_t n_t;                       //Number of consumer threads
 uint64_t n_combinations;            //C(n,k): number of combinations possible with k selections of n points
 uint32_t dim;                       //The dimension of each point
 squared_distance_func_t dist;       //The distance function (either manhattan or euclidean)
@@ -334,14 +333,12 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     
-    if(program_arguments.n_threads == 1) {return singleThread(&program_arguments);}
-
     //Initialising global variables
     k = program_arguments.k;
     n = program_arguments.n_first_initialization_points; 
     dist = program_arguments.squared_distance_func;
     q = program_arguments.quiet;
-    n_t = program_arguments.n_threads - 1;  //-1 because the main thread is also used
+    n_t = program_arguments.n_threads; 
     out = program_arguments.output_stream;
 
     
