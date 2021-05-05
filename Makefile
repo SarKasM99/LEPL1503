@@ -5,7 +5,7 @@ CFLAGS=-Wall -Werror -g
 LIBS=-lcunit -lpthread 
 INCLUDE_HEADERS_DIRECTORY=-Iheaders -I${HOME}/local/include -L${HOME}/local/lib
 
-kmeans: main.c src/distance.o src/file_functions.o src/Lloyd.o src/combination.o src/singleThread.o   # add your other object files needed to compile your program here. !! The ordering is important !!  
+kmeans: main.c src/distance.o src/file_functions.o src/Lloyd.o src/combination.o # add your other object files needed to compile your program here. !! The ordering is important !!  
 	@echo Creating kmeans:
 	$(CC) $(INCLUDE_HEADERS_DIRECTORY) $(CFLAGS) -o $@ $^ $(LIBS) 
 	@echo Compiling unit tests
