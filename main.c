@@ -241,7 +241,7 @@ void* con(void* id){
         }
     }
 
-    while(items != 0){
+    while(true){
         pthread_mutex_lock(&mutex);
         
         if(items == 0){
@@ -315,12 +315,6 @@ int main(int argc, char *argv[]) {
     args_t program_arguments;   //allocate the args on the stack
     parse_args(&program_arguments, argc, argv);
 
-    if (program_arguments.n_first_initialization_points < program_arguments.k){
-        fprintf(stderr, "Cannot generate an instance of k-means with less initialization points than needed clusters: %"PRIu32" < %"PRIu32"\n",
-                program_arguments.n_first_initialization_points, program_arguments.k);
-        return -1;
-    }
-
     //the following fprintf (and every code already present in this skeleton) can be removed, it is just an example to show you how to use the program arguments
     fprintf(stderr, "\tnumber of threads executing the LLoyd's algoprithm in parallel: %" PRIu32 "\n", program_arguments.n_threads);
     fprintf(stderr, "\tnumber of clusters (k): %" PRIu32 "\n", program_arguments.k);
@@ -364,6 +358,13 @@ int main(int argc, char *argv[]) {
     bool buf_init = true; //A boolean that tells if the buffer has been initialised or not
 
     if(n > n_pts) n = n_pts; //In case the number of points of initialisations is bigger than the number of points 
+
+    if (n < program_arguments.k){
+        fprintf(stderr, "Cannot generate an instance of k-means with less initialization points than needed clusters: %"PRIu32" < %"PRIu32"\n",
+                n, program_arguments.k);
+        fprintf(stderr,"There are %"PRIu64" points in the binary file\n",n_pts);
+        return -1;
+    }
 
     //Solving k-means problem and storing the results in the csv file
 	fprintf(out,"initialization centroids,distortion,centroids,clusters\n");
@@ -535,6 +536,8 @@ int main(int argc, char *argv[]) {
             free(clusters[0][i]->data);
             free(clusters[0][i]);
         }
+
+        free(clusters[0]);
     }
 
     if(buf_init) free(buf);
