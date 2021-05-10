@@ -30,8 +30,7 @@ void Lloyd(point_t** points, int64_t* data, uint64_t n,uint32_t k,cluster_t** co
         }
     }
 
-    //stocker la cluster size
-    int64_t cluster_size[k];
+    int64_t cluster_size[k];  //An array containing cluster sizes
 
     point_t pi; pi.dim = dim; //A point from the data
     point_t pc; pc.dim = dim; //A center from a cluster
