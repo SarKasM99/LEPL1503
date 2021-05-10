@@ -225,7 +225,7 @@ cluster_t * clus2() {
 }
 
 void test_manhattan_distorsion(){
-    cluster_t ** dataclust = (cluster_t**) malloc(sizeof (cluster_t*));
+    cluster_t ** dataclust = (cluster_t**) malloc(2*sizeof(cluster_t*));
     dataclust[0] = clus1();
     dataclust[1] = clus2();
     CU_ASSERT_EQUAL(distorsion(dataclust,squared_manhattan_distance,2), (uint64_t)19);
@@ -251,7 +251,7 @@ void test_manhattan_distorsion(){
 }
 
 void test_euclidian_distorsion(){
-    cluster_t ** dataclust = (cluster_t**) malloc(sizeof (cluster_t*));
+    cluster_t ** dataclust = (cluster_t**) malloc(2*sizeof (cluster_t*));
     dataclust[0] = clus1();
     dataclust[1] = clus2();
     CU_ASSERT_EQUAL(distorsion(dataclust,squared_euclidean_distance,2), (uint64_t)11);
