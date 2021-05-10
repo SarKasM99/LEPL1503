@@ -45,6 +45,7 @@ point_t** parse_input(FILE* file, uint64_t* nbr_points ){
         
         if(cord_p == NULL){ 
             freeData(data,i+1);
+            return NULL;
         }
 
         fread(cord_p, sizeof(int64_t), dim, file);
