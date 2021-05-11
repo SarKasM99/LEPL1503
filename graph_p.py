@@ -72,21 +72,14 @@ for i in range(int(len(f)/8)):
     x+=[combination(5*i,2)]
     
 
-x2=x[:5]
 
 #p2=p[:5]  
 #plt.scatter(x2,p2)
-
-  
-t5=t1[:5]
-t6=t2[:5]
-t7=t3[:5]
-t8=t4[:5]  
-plt.scatter(x2,t5,c='g')
-plt.scatter(x2,t6,c='y')
-plt.scatter(x2,t7,c='orange')
-plt.scatter(x2,t8,c='r')
-plt.xlabel('Number of points of initialisation')
+plt.scatter(x,t1,c='g')
+plt.scatter(x,t2,c='y')
+plt.scatter(x,t3,c='orange')
+plt.scatter(x,t4,c='r')
+plt.xlabel('Number of combinations')
 plt.ylabel('Time [s]')
 plt.title('Performance test (k=2 vectors=200)')
 plt.grid(True)
