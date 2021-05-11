@@ -25,18 +25,18 @@ tests: kmeans
 
 memcheck: kmeans 
 	@echo Valgrind test1
-	valgrind ./kmeans -n 1 -p 10 -k 2 -f example.csv test/example.bin
+	valgrind --tool=helgrind ./kmeans -n 1 -p 10 -k 2 -f example.csv test/example.bin
 	@echo
 	@echo Valgrind test2
-	valgrind ./kmeans -n 2 -p 10 -k 2 -f example.csv test/example2.bin
+	valgrind --tool=helgrind ./kmeans -n 2 -p 10 -k 2 -f example.csv test/example2.bin
 	@echo 
 	@echo Valgrind test3
-	valgrind ./kmeans -n 3 -p 10 -k 2 -f example.csv test/example_dim1.bin
+	valgrind --tool=helgrind ./kmeans -n 3 -p 10 -k 2 -f example.csv test/example_dim1.bin
 	@echo 
 	@echo Valgrind test4
-	valgrind ./kmeans -n 4 -p 10 -k 2 -f example.csv test/example_dim3.bin
+	valgrind --tool=helgrind ./kmeans -n 4 -p 10 -k 2 -f example.csv test/example_dim3.bin
 	@echo Valgrind test5
-	valgrind ./test/test
+	valgrind --tool=helgrind ./test/test
 
 # a .PHONY target forces make to execute the command even if the target already exists
 .PHONY: clean tests
