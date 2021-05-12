@@ -59,14 +59,14 @@ def myfunc(filename):
     return t1,t2,t3,t4 
         
 y1=myfunc("timek2p20.txt")
-#p1=myfunc2("tempsk2p20.txt")
+p1=myfunc2("tempsk2p20.txt")
 t1=y1[0]
 t2=y1[1]
 t3=y1[2]
 t4=y1[3]
 plt.subplot(511)
 x=[200,300,400,500,600,700,800,900,1000]
-#plt.scatter(x,p1)
+plt.scatter(x,p1)
 plt.scatter(x,t1,c='g')
 plt.scatter(x,t2,c='y')
 plt.scatter(x,t3,c='orange')
@@ -78,7 +78,7 @@ plt.legend(['c (unithread)','c (threads=2)','c (threads=3)','c (threads=4)'])
 #plt.loglog()
 
 y2=myfunc("timek3p20.txt")
-#p2=myfunc2("tempsk3p20.txt")
+p2=myfunc2("tempsk3p20.txt")
 t5=y2[0]
 t6=y2[1]
 t7=y2[2]
@@ -96,7 +96,7 @@ plt.legend(['c (unithread)','c (threads=2)','c (threads=3)','c (threads=4)'])
 #plt.loglog()
 
 y3=myfunc("timek4p20.txt")
-#p3=myfunc2("tempsk4p20.txt")
+p3=myfunc2("tempsk4p20.txt")
 t9=y3[0]
 t10=y3[1]
 t11=y3[2]
@@ -117,8 +117,8 @@ title1="Rapport de Performance k=2 p=20"
 title2="Rapport de Performance k=3 p=20"
 title3="Rapport de Performance k=4 p=20"
 
-Make_rapport(title1,y1,t1,t2,t3,t4)
-Make_rapport(title2,y2,t5,t6,t7,t8)
-Make_rapport(title3,y3,t9,t10,t11,t12)
+Make_rapport(title1,p1,t1,t2,t3,t4)
+Make_rapport(title2,p2,t5,t6,t7,t8)
+Make_rapport(title3,p3,t9,t10,t11,t12)
     
 plt.show()
