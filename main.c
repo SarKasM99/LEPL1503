@@ -214,21 +214,20 @@ void prod(){
 /**
 * @brief This is the consumer function and it is executed by the pthreads.
 * This function takes into parameter an 'id' (which is not the pthread id)
-* in order to properly distribute the amount of work needed and indicating
-* the index of the set of clusters they need process with (see the global variable above). 
+* and it represents the index of the set of clusters they need process with 
+* (see the global variable above). 
 *
-* Each thread will be processing a precalculated amount of iterations:
-* the iteration starts with their 'id' as their initial value and 
-* each time an iteration is complete, this id is incremented by n_t
-* until it exceeded the n_combinations-1 (since the last combination is tested by the main 
-* thread). 
+* Each thread will be working until there are no set of points left in the buffer. 
+* The global variable 'items' indicates the number of sets that needs to be tested
+* with Lloyd's algorithm. Each time a thread takes a point, the variable 'items'
+* is decremented.
 *
 * In each iteration, a thread:
 * -Takes a set of point pointers from the buffer
 * -Initialises the clusters with this set and applies Lloyd's algorithm
 * -Writes the results down in the requested file output by the user (stdout otherwise).
 *
-* @param id It's the number that indicates at which value the thread needs to start its iteration and the index of the set of cluster pointers.
+* @param id It's the number that indicates at which index of the set of cluster pointers.
 */
 void* con(void* id){
     uint32_t index = *((uint32_t*) id);
@@ -252,13 +251,15 @@ void* con(void* id){
         sem_wait(&empty);
         point_t** centers = get();    //Getting the set of point pointers
 
+
         //Initialising each cluster
         for(uint32_t j = 0; j< k; j++){
             memcpy(clusters[index][j]->center->coords,centers[j]->coords,dim*sizeof(int64_t)); 
             memcpy(init_centers[j],centers[j]->coords,dim*sizeof(int64_t));  
         }
-        
+
         pthread_mutex_unlock(&mutex); 
+        
         sem_post(&full);
 
         //Applying Lloyd's algorithm and calculating the distortion
@@ -286,7 +287,30 @@ void* con(void* id){
 /**
 * @author Arnaud and Gabriel
 *
-* @brief Combines all the functions and solves the k-means problem by applying the Lloyd's algorithm
+* @brief Combines all the functions described in the headers and solves the k-means problem by applying the Lloyd's algorithm
+* The solution is based on the 'consumer and procuder' strategy. The producer generates combinations of points (C(n,k) where
+* n is the number of points of initialisation and k is the number of clusters). The generated point is stored into a shared buffered (unless
+* the number of threads is equal to one). The consumers takes those points from the buffer, applies Lloyd's algorithm and writes the resutls 
+* in the requested output file.
+*
+* The threads are used in the following way:
+* -If n == 1 -> the program launches the singlethreaded version where the main thread does both consumer and producer.
+* -If n > 1  -> the program launches the multithreaded version where the main thread is the producer and n-1 pthreads are the consumers.
+*
+* The producer and the consumers communicates with a semaphor in order to give signals when the buffer is either full or empty. 
+* The producer will not stop producing until it generated all the points.
+* Each consumer thread will not stop working until there are no points left.
+*
+* The concurrency between producers are controlled by two mutex:
+* -mutex write 
+* -mutex mutex
+* 
+* Mutex write locks the process of writting in the output file. Therefore only one thread at a time can write in this file.
+* Mutex mutex locks the process of taking a point from the buffer. First it locks and checks if there is any elements left in the buffer 
+* (the number of items in the buffer is calculated by applying a combination algorithm and then decremented each time a thread takes a point). 
+* If there still an item to take, the consumer will communicate with the producer (with sem_wait(&empty)) to check if the set of points that the consumer
+* wishes to obtain is ready. After the consumer got his points, he unlocks the mutex and signals the producer once he finished copying his set of points. 
+* If there is not item left to take, the consumer unlocks the mutex and exit the while loop.
 */
 int main(int argc, char *argv[]) {
     args_t program_arguments;   //allocate the args on the stack
