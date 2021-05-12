@@ -287,30 +287,7 @@ void* con(void* id){
 /**
 * @author Arnaud and Gabriel
 *
-* @brief Combines all the functions described in the headers and solves the k-means problem by applying the Lloyd's algorithm
-* The solution is based on the 'consumer and procuder' strategy. The producer generates combinations of points (C(n,k) where
-* n is the number of points of initialisation and k is the number of clusters). The generated point is stored into a shared buffered (unless
-* the number of threads is equal to one). The consumers takes those points from the buffer, applies Lloyd's algorithm and writes the resutls 
-* in the requested output file.
-*
-* The threads are used in the following way:
-* -If n == 1 -> the program launches the singlethreaded version where the main thread does both consumer and producer.
-* -If n > 1  -> the program launches the multithreaded version where the main thread is the producer and n-1 pthreads are the consumers.
-*
-* The producer and the consumers communicates with a semaphor in order to give signals when the buffer is either full or empty. 
-* The producer will not stop producing until it generated all the points.
-* Each consumer thread will not stop working until there are no points left.
-*
-* The concurrency between producers are controlled by two mutex:
-* -mutex write 
-* -mutex mutex
-* 
-* Mutex write locks the process of writting in the output file. Therefore only one thread at a time can write in this file.
-* Mutex mutex locks the process of taking a point from the buffer. First it locks and checks if there is any elements left in the buffer 
-* (the number of items in the buffer is calculated by applying a combination algorithm and then decremented each time a thread takes a point). 
-* If there still an item to take, the consumer will communicate with the producer (with sem_wait(&empty)) to check if the set of points that the consumer
-* wishes to obtain is ready. After the consumer got his points, he unlocks the mutex and signals the producer once he finished copying his set of points. 
-* If there is not item left to take, the consumer unlocks the mutex and exit the while loop.
+* @brief Combines all the functions and solves the k-means problem by applying the Lloyd's algorithm
 */
 int main(int argc, char *argv[]) {
     args_t program_arguments;   //allocate the args on the stack
