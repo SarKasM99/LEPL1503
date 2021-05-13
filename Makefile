@@ -1,7 +1,7 @@
 #Auteurs : Alicia & Alexandre 
 
 CC=gcc
-CFLAGS=-Wall -Werror -g
+CFLAGS=-Wall -Werror -g -std=c99
 LIBS=-lcunit -lpthread 
 INCLUDE_HEADERS_DIRECTORY=-Iheaders -I${HOME}/local/include -L${HOME}/local/lib
 
