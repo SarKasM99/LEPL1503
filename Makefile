@@ -1,7 +1,7 @@
 #Auteurs : Alicia & Alexandre 
 
 CC=gcc
-CFLAGS=-Wall -Werror -g -std=c99
+CFLAGS=-Wall -Werror -g -std=gnu99
 LIBS=-lcunit -lpthread 
 INCLUDE_HEADERS_DIRECTORY=-Iheaders -I${HOME}/local/include -L${HOME}/local/lib
 
@@ -19,6 +19,7 @@ clean:
 	rm -f src/*.o
 	rm -f kmeans
 	rm -f test/test
+	
 tests: kmeans 
 	@echo Launching unit tests:
 	./test/test
